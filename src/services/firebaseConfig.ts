@@ -1,7 +1,6 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
-import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // In a real app, these should be in an environment variable (.env)
 // Based on the provided LICENSE.json
@@ -17,10 +16,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Auth with AsyncStorage persistence for React Native
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// Initialize Auth
+const auth = getAuth(app);
 
 const db = getFirestore(app);
 
