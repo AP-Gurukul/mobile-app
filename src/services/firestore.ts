@@ -27,7 +27,7 @@ export const fetchUserStats = async (uid: string) => {
 export const fetchPracticeQuestions = async (subject: string, topic: string, limitCount: number = 10): Promise<Question[]> => {
   try {
     const q = query(
-      collection(db, 'unifiedDatabase'),
+      collection(db, 'questions'),
       where('subject', '==', subject),
       where('topic', '==', topic),
       limit(limitCount)
