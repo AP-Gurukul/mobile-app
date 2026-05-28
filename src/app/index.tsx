@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { auth } from '../src/services/firebaseConfig';
+import { auth } from '../services/firebaseConfig';
 
 export default function Index() {
   const user = auth.currentUser;

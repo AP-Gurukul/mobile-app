@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Chip, useTheme, Surface } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useAuthStore } from '../../src/store/useAuth';
+import { useAuthStore } from '../../store/useAuth';
 
 const EXAM_OPTIONS = [
   { id: 'appsc_group_1', label: 'APPSC Group 1' },

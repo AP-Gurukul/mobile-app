@@ -1,10 +1,11 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeAuth, getAuth, Auth } from 'firebase/auth';
+// @ts-ignore
+import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // In a real app, these should be in an environment variable (.env)
-// Based on the provided LICENSE.json
 const firebaseConfig = {
   apiKey: 'AIzaSyCkJwRbqkzDTvR-mOn5lurJkO0hJLTtlwM',
   authDomain: 'ap-gurukul-43050.firebaseapp.com',
@@ -18,9 +19,21 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Auth with persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+// Use try-catch to handle hot reload / module re-evaluation where
+// initializeAuth throws "auth/already-initialized"
+let auth: Auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (e: unknown) {
+  const firebaseError = e as { code?: string };
+  if (firebaseError.code === 'auth/already-initialized') {
+    auth = getAuth(app);
+  } else {
+    throw e;
+  }
+}
 
 const db = getFirestore(app);
 

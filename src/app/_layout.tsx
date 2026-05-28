@@ -1,9 +1,9 @@
 import { Stack, router, useSegments } from 'expo-router';
 import { PaperProvider } from 'react-native-paper';
 import { useColorScheme } from 'react-native';
-import { lightTheme, darkTheme } from '../src/theme/theme';
+import { lightTheme, darkTheme } from '../theme/theme';
 import { useEffect, useState } from 'react';
-import { auth } from '../src/services/firebaseConfig';
+import { auth } from '../services/firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { View, ActivityIndicator } from 'react-native';
 
@@ -48,9 +48,12 @@ export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="practice" options={{ headerShown: false }} />
+        <Stack.Screen name="current-affairs" options={{ headerShown: false }} />
+        <Stack.Screen name="pyq" options={{ headerShown: false }} />
       </Stack>
     </PaperProvider>
   );

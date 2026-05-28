@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } fro
 import { Text, useTheme, Button, IconButton, ProgressBar, Surface } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { fetchPracticeQuestions, Question } from '../../src/services/firestore';
+import { fetchPracticeQuestions, Question } from '../../services/firestore';
 
 export default function ActivePracticeSession() {
   const theme = useTheme();
@@ -102,7 +102,7 @@ export default function ActivePracticeSession() {
 
         {/* Options */}
         <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((opt) => {
+          {currentQuestion.options.map((opt: any) => {
             const isSelected = selectedAnswers[currentIndex] === opt.id;
             return (
               <TouchableOpacity

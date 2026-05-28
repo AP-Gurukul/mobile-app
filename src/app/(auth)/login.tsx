@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text, TextInput, ActivityIndicator } from 'react-native-paper';
 import { router } from 'expo-router';
-import { auth } from '../../src/services/firebaseConfig';
+import { auth } from '../../services/firebaseConfig';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -29,7 +29,7 @@ export default function LoginScreen() {
     // To FIX the Google Auth 400 Error on Expo Go:
     // You MUST create an iOS OAuth Client ID in Google Cloud Console with the bundle ID: host.exp.exponent
     // And place that string right here:
-    iosClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Replace this with actual iOS Client ID!
+    iosClientId: '797079176348-eib61bm9stigtvbviu3h43a7qkbqvi94.apps.googleusercontent.com', // Replace this with actual iOS Client ID!
     androidClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Replace with actual Android Client ID!
   });
 
@@ -61,7 +61,7 @@ export default function LoginScreen() {
       Alert.alert('Error', 'Please enter both email and password.');
       return;
     }
-    
+
     setLoading(true);
     try {
       if (isSignUp) {
@@ -72,12 +72,12 @@ export default function LoginScreen() {
       router.replace('/(tabs)');
     } catch (err: any) {
       if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
-         Alert.alert('Error', 'Invalid credentials or account not found.');
+        Alert.alert('Error', 'Invalid credentials or account not found.');
       } else if (err.code === 'auth/email-already-in-use') {
-         Alert.alert('Error', 'Email already in use. Please log in.');
-         setIsSignUp(false);
+        Alert.alert('Error', 'Email already in use. Please log in.');
+        setIsSignUp(false);
       } else {
-         Alert.alert('Authentication Failed', err.message);
+        Alert.alert('Authentication Failed', err.message);
       }
     } finally {
       setLoading(false);
@@ -101,7 +101,7 @@ export default function LoginScreen() {
         style={styles.container}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          
+
           <View style={styles.logoContainer}>
             <MaterialCommunityIcons name="cube-outline" size={48} color="#FFFFFF" />
           </View>
@@ -111,8 +111,8 @@ export default function LoginScreen() {
           </Text>
 
           {/* Google Button */}
-          <TouchableOpacity 
-            style={styles.googleButton} 
+          <TouchableOpacity
+            style={styles.googleButton}
             onPress={handleGoogleLogin}
             disabled={loading || googleLoading || !request}
           >
@@ -160,8 +160,8 @@ export default function LoginScreen() {
               activeUnderlineColor="transparent"
             />
 
-            <TouchableOpacity 
-              style={styles.continueButton} 
+            <TouchableOpacity
+              style={styles.continueButton}
               onPress={handleEmailAuth}
               disabled={loading || googleLoading}
             >
