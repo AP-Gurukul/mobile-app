@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { Text, TextInput, Button, useTheme, Divider, HelperText } from 'react-native-paper';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Text, TextInput, ActivityIndicator } from 'react-native-paper';
 import { router } from 'expo-router';
 import { auth } from '../../src/services/firebaseConfig';
 import {
@@ -11,32 +11,33 @@ import {
 } from 'firebase/auth';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Required for expo-auth-session to work on Android
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-  const theme = useTheme();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(''); // We'll keep this hidden initially or skip it if we want the "Continue" flow, but standard Firebase needs it. Let's just show it.
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState('');
+  const [isSignUp, setIsSignUp] = useState(true);
 
-  // Google Auth setup
-  // The webClientId comes from your Firebase console -> Authentication -> Sign-in method -> Google -> Web client ID
+  // The webClientId from Firebase
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com',
-    iosClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Placeholder to prevent Expo Go crash on iOS
-    androidClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Placeholder to prevent Expo Go crash on Android
+    // To FIX the Google Auth 400 Error on Expo Go:
+    // You MUST create an iOS OAuth Client ID in Google Cloud Console with the bundle ID: host.exp.exponent
+    // And place that string right here:
+    iosClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Replace this with actual iOS Client ID!
+    androidClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Replace with actual Android Client ID!
   });
 
   useEffect(() => {
     if (response?.type === 'success') {
       handleGoogleResponse(response);
     } else if (response?.type === 'error') {
-      setError('Google Sign-In failed. Please try again.');
+      Alert.alert('Google Sign-In Failed', 'Please ensure you have configured Native iOS/Android Client IDs in Google Cloud.');
       setGoogleLoading(false);
     }
   }, [response]);
@@ -49,8 +50,7 @@ export default function LoginScreen() {
       await signInWithCredential(auth, credential);
       router.replace('/(tabs)');
     } catch (err: any) {
-      console.error('Google sign-in error:', err);
-      setError(err.message || 'Google Sign-In failed.');
+      Alert.alert('Google Auth Error', err.message);
     } finally {
       setGoogleLoading(false);
     }
@@ -58,17 +58,11 @@ export default function LoginScreen() {
 
   const handleEmailAuth = async () => {
     if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password.');
+      Alert.alert('Error', 'Please enter both email and password.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-
+    
     setLoading(true);
-    setError('');
-
     try {
       if (isSignUp) {
         await createUserWithEmailAndPassword(auth, email.trim(), password);
@@ -77,25 +71,13 @@ export default function LoginScreen() {
       }
       router.replace('/(tabs)');
     } catch (err: any) {
-      console.error('Email auth error:', err);
-      switch (err.code) {
-        case 'auth/user-not-found':
-          setError('No account found. Please sign up first.');
-          break;
-        case 'auth/wrong-password':
-          setError('Incorrect password. Please try again.');
-          break;
-        case 'auth/email-already-in-use':
-          setError('Email already in use. Please sign in instead.');
-          break;
-        case 'auth/invalid-email':
-          setError('Please enter a valid email address.');
-          break;
-        case 'auth/invalid-credential':
-          setError('Invalid credentials. Check your email and password.');
-          break;
-        default:
-          setError(err.message || 'Authentication failed.');
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+         Alert.alert('Error', 'Invalid credentials or account not found.');
+      } else if (err.code === 'auth/email-already-in-use') {
+         Alert.alert('Error', 'Email already in use. Please log in.');
+         setIsSignUp(false);
+      } else {
+         Alert.alert('Authentication Failed', err.message);
       }
     } finally {
       setLoading(false);
@@ -103,151 +85,213 @@ export default function LoginScreen() {
   };
 
   const handleGoogleLogin = async () => {
-    setError('');
     setGoogleLoading(true);
     try {
       await promptAsync();
     } catch (err: any) {
-      setError('Could not start Google Sign-In.');
+      Alert.alert('Error', 'Could not start Google Sign-In.');
       setGoogleLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text variant="displaySmall" style={[styles.title, { color: theme.colors.primary }]}>
-            APPSC Pandit
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          
+          <View style={styles.logoContainer}>
+            <MaterialCommunityIcons name="cube-outline" size={48} color="#FFFFFF" />
+          </View>
+
+          <Text style={styles.title}>
+            {isSignUp ? 'Create your free account' : 'Log in to your account'}
           </Text>
-          <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
-            Your journey to success starts here.
-          </Text>
-        </View>
 
-        {error ? (
-          <HelperText type="error" visible={true} style={styles.errorText}>
-            {error}
-          </HelperText>
-        ) : null}
-
-        <View style={styles.form}>
-          <TextInput
-            label="Email"
-            mode="outlined"
-            value={email}
-            onChangeText={(t) => { setEmail(t); setError(''); }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            style={styles.input}
-            left={<TextInput.Icon icon="email-outline" />}
-          />
-          <TextInput
-            label="Password"
-            mode="outlined"
-            value={password}
-            onChangeText={(t) => { setPassword(t); setError(''); }}
-            secureTextEntry
-            style={styles.input}
-            left={<TextInput.Icon icon="lock-outline" />}
-          />
-          <Button
-            mode="contained"
-            onPress={handleEmailAuth}
-            loading={loading}
-            disabled={loading || googleLoading}
-            style={styles.button}
-            contentStyle={styles.buttonContent}
-          >
-            {isSignUp ? 'Create Account' : 'Sign In'}
-          </Button>
-          <Button
-            mode="text"
-            onPress={() => { setIsSignUp(!isSignUp); setError(''); }}
-            style={{ marginTop: 8 }}
-          >
-            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-          </Button>
-        </View>
-
-        <View style={styles.dividerContainer}>
-          <Divider style={styles.divider} />
-          <Text style={{ marginHorizontal: 16, color: theme.colors.onSurfaceVariant }}>OR</Text>
-          <Divider style={styles.divider} />
-        </View>
-
-        <View style={styles.socialAuth}>
-          <Button
-            mode="outlined"
-            icon="google"
+          {/* Google Button */}
+          <TouchableOpacity 
+            style={styles.googleButton} 
             onPress={handleGoogleLogin}
-            loading={googleLoading}
             disabled={loading || googleLoading || !request}
-            style={styles.socialButton}
-            contentStyle={styles.socialButtonContent}
           >
-            Continue with Google
-          </Button>
-        </View>
+            {googleLoading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <MaterialCommunityIcons name="google" size={20} color="#4285F4" style={styles.googleIcon} />
+                <Text style={styles.googleButtonText}>
+                  {isSignUp ? 'Sign up with Google' : 'Log in with Google'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
 
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <View style={styles.formContainer}>
+            <TextInput
+              placeholder="Enter Your Email"
+              placeholderTextColor="#71717A"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              style={styles.input}
+              textColor="#FFFFFF"
+              underlineColor="transparent"
+              activeUnderlineColor="transparent"
+            />
+
+            <TextInput
+              placeholder="Enter Your Password"
+              placeholderTextColor="#71717A"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={styles.input}
+              textColor="#FFFFFF"
+              underlineColor="transparent"
+              activeUnderlineColor="transparent"
+            />
+
+            <TouchableOpacity 
+              style={styles.continueButton} 
+              onPress={handleEmailAuth}
+              disabled={loading || googleLoading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#000000" size="small" />
+              ) : (
+                <Text style={styles.continueButtonText}>Continue</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.footerContainer}>
+            <Text style={styles.footerText}>
+              {isSignUp ? 'Already a user? ' : "Don't have an account? "}
+            </Text>
+            <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
+              <Text style={styles.footerLink}>
+                {isSignUp ? 'Log in' : 'Sign up'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#09090B', // Pitch black/dark gray background
+  },
   container: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 24,
+    paddingHorizontal: 32,
     justifyContent: 'center',
-  },
-  header: {
     alignItems: 'center',
-    marginBottom: 48,
+    paddingBottom: 40,
+  },
+  logoContainer: {
+    marginBottom: 32,
   },
   title: {
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 40,
     textAlign: 'center',
-    marginBottom: 8,
+    letterSpacing: -0.5,
   },
-  form: {
-    marginBottom: 24,
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#18181B', // Dark button background
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#27272A',
   },
-  input: {
-    marginBottom: 16,
+  googleIcon: {
+    marginRight: 12,
   },
-  button: {
-    marginTop: 8,
-    borderRadius: 8,
-  },
-  buttonContent: {
-    paddingVertical: 8,
+  googleButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    width: '100%',
+    marginVertical: 32,
   },
-  divider: {
+  dividerLine: {
     flex: 1,
+    height: 1,
+    backgroundColor: '#27272A',
   },
-  socialAuth: {
+  dividerText: {
+    color: '#FFFFFF',
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  formContainer: {
+    width: '100%',
     gap: 16,
   },
-  socialButton: {
-    borderRadius: 8,
+  input: {
+    backgroundColor: '#18181B', // Very dark gray
+    borderRadius: 24,
+    height: 56,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    paddingHorizontal: 8,
+    fontSize: 16,
   },
-  socialButtonContent: {
-    paddingVertical: 8,
+  continueButton: {
+    backgroundColor: '#FFFFFF',
+    width: '100%',
+    paddingVertical: 18,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  continueButtonText: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    marginTop: 32,
+  },
+  footerText: {
+    color: '#A1A1AA',
+    fontSize: 14,
+  },
+  footerLink: {
+    color: '#71717A',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
