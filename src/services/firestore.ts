@@ -1,5 +1,5 @@
 import { db } from './firebaseConfig';
-import { collection, doc, getDoc, getDocs, query, where, limit } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, limit, addDoc } from 'firebase/firestore';
 
 export interface Question {
   id: string;
@@ -53,5 +53,18 @@ export const fetchPracticeQuestions = async (subject: string, topic: string, lim
         explanation: 'Part III of the Indian Constitution (Articles 12 to 35) deals with Fundamental Rights.'
       }
     ];
+  }
+};
+
+export const saveAttempt = async (uid: string, attempt: any) => {
+  try {
+    const userAttemptsRef = collection(db, 'users', uid, 'userAttempts');
+    // Save document with auto-generated ID
+    await addDoc(userAttemptsRef, {
+      ...attempt,
+      savedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error saving attempt to Firestore:', error);
   }
 };

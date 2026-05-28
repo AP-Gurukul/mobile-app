@@ -1,24 +1,31 @@
-# Contributing to AP-Gurukul
+# Contributing to APPSC Pandit
 
-Thank you for your interest in contributing to AP-Gurukul! 
+First off, thank you for considering contributing to APPSC Pandit! It's people like you that make this application better for all students.
 
-## 🌍 The Universal Architecture (Firebase Sync)
-Before you contribute, please understand our core architecture:
-**Everything is synced.** Whether a user is logging into the `web-app`, the `mobile-app`, or the `telegram-web-app`, they are authenticating with the exact same Google Gmail account. 
-When an admin adds a new question in the `admin-portal`, that single Firestore database updates in real-time, instantly pushing the new question out to the mobile app, web app, and telegram app simultaneously.
+## Branching Strategy
 
-There is only **one** source of truth: our Firebase database. 
+- **DO NOT push directly to the `main` branch.**
+- Always create a new branch for every feature or bug fix.
+- Branch naming convention: `feature/description-of-feature`, `bugfix/description-of-bug`, `hotfix/description`.
 
-## 🛠 Contribution Workflows
+## Pull Requests (PRs)
 
-1. **Fork** the repository to your personal GitHub account.
-2. Create a new branch: `git checkout -b feat/your-feature`.
-3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/).
-4. Push changes to your fork and open a **Pull Request** to our `main` branch.
-*(Note: As an open-source contributor, you test against our public staging APIs).*
+- When you are ready to merge your code, open a Pull Request against the `main` branch.
+- **Detailed PR Descriptions:** Every PR must include a very detailed description of what was changed, why it was changed, and how it was tested.
+- Review process: Wait for a code review before merging. Do not merge your own PRs.
 
-## 📜 Code Style
-- **TypeScript**: We strictly use TypeScript across all repositories.
-- **ESLint/Prettier**: Run `npm run lint` before committing.
+## Commit Messages
 
-Thank you for helping us build the ultimate educational platform!
+- **Detailed Commits:** Write detailed and meaningful commit messages.
+- Format: Try to follow conventional commits (e.g., `feat: added practice engine`, `fix: corrected login validation error`).
+
+## Development Guidelines
+
+1. **Keep it modular:** Place reusable components in `src/components/`.
+2. **State Management:** Use Zustand in `src/store/` for global state. Do not overuse React Context unless necessary.
+3. **Styling:** We use React Native Paper for UI. Stick to the theme variables provided in `src/theme/theme.ts` instead of hardcoding colors.
+4. **Testing:** Make sure to test your code locally on both iOS and Android platforms before opening a PR.
+
+## Setup Instructions
+
+Please refer to the [README.md](README.md) for local environment setup instructions.

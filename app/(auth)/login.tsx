@@ -28,7 +28,8 @@ export default function LoginScreen() {
   // The webClientId comes from your Firebase console -> Authentication -> Sign-in method -> Google -> Web client ID
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com',
-    // androidClientId will be needed for standalone builds
+    iosClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Placeholder to prevent Expo Go crash on iOS
+    androidClientId: '797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com', // Placeholder to prevent Expo Go crash on Android
   });
 
   useEffect(() => {
