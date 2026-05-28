@@ -1,26 +1,74 @@
-# AP-Gurukul Mobile App
+# APPSC Pandit - Student Practice App
 
-This is the official AP-Gurukul cross-platform mobile application, built with **React Native** and **Expo**.
+Welcome to the **APPSC Pandit** student application! This is a modern, premium mobile application built with React Native and Expo to help students practice, analyze their performance, and excel in their exams.
 
-## 🔄 Universal Data Sync
-**This application shares a unified Firebase database with the entire AP-Gurukul ecosystem.** 
-- If you log in here with your Gmail account, your exact profile, progress, and saved data will be perfectly synced and available if you log into the Next.js Web App or Telegram App.
-- If an admin adds a new question or subject in the Admin Portal, it will instantly reflect in this mobile app in real-time.
+## Features
 
-## 🚀 Getting Started
+- **Auth & Profiles**: Secure email/password and Google Sign-in via Firebase.
+- **Practice Engine**: Dynamic question generation for specific subjects and topics.
+- **Review Center**: Smart algorithms to track "Wrong Answers", "Bookmarked", "Flagged", and "Weak Topics".
+- **Test Series**: Mock exams with varying difficulty and durations.
+- **Analytics**: Detailed subject-wise performance analysis.
 
-1. **Install dependencies:**
+## Tech Stack
+
+- **Framework**: React Native 0.81.x
+- **Environment**: Expo SDK 54
+- **Language**: TypeScript
+- **Routing**: Expo Router (file-based navigation)
+- **UI Framework**: React Native Paper (Material Design 3)
+- **State Management**: Zustand
+- **Backend**: Firebase (Auth, Firestore)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+- Expo CLI
+- iOS Simulator (for Mac) or Android Emulator
+
+### Installation
+
+1. Clone the repository:
    ```bash
-   npm install
+   git clone https://github.com/AP-Gurukul/mobile-app.git
+   cd mobile-app
    ```
 
-2. **Start the Expo server:**
+2. Install dependencies:
    ```bash
-   npm start
+   npm install --legacy-peer-deps
    ```
 
-3. **Run on Device:**
-   Scan the QR code printed in your terminal using the Expo Go app on your iOS or Android device.
+3. Start the Expo development server:
+   ```bash
+   npx expo start
+   ```
 
-## 🤝 Contributing
-Please see the `CONTRIBUTING.md` and `SECURITY.md` files for guidelines on how to contribute to this open-source repository.
+4. Press `i` to open in iOS Simulator, `a` for Android Emulator, or scan the QR code with the Expo Go app on your physical device.
+
+## Project Structure
+
+```
+├── app/                  # Expo Router file-based routes
+│   ├── (auth)/           # Authentication screens
+│   ├── (tabs)/           # Main bottom tab navigation
+│   └── practice/         # Practice session flows
+├── src/                  # Source files
+│   ├── components/       # Reusable UI components
+│   ├── services/         # Firebase and API logic
+│   ├── store/            # Zustand state management
+│   └── theme/            # React Native Paper theme
+├── assets/               # Images, fonts, etc.
+└── app.json              # Expo configuration
+```
+
+## Contributing
+
+We welcome contributions! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to get started.
+
+## License
+
+All rights reserved to AP Gurukul.
