@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "797079176348",
+    "project_id": "ap-gurukul-43050",
+    "storage_bucket": "ap-gurukul-43050.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797079176348:android:7e34b7528e94d34dfa9959",
+        "android_client_info": {
+          "package_name": "com.appsc.pandit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkJwRbqkzDTvR-mOn5lurJkO0hJLTtlwM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797079176348-st2nmgkral0451t1hti9f93e18327hgc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
