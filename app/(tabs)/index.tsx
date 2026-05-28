@@ -61,11 +61,20 @@ export default function HomeScreen() {
           />
         </Card>
 
-        <Card style={styles.actionCard} onPress={() => {}}>
+        <Card style={styles.actionCard} onPress={() => router.push('/current-affairs')}>
           <Card.Title
             title="Daily Current Affairs"
             subtitle="10 questions waiting for you"
             left={(props) => <IconButton {...props} icon="newspaper-variant-outline" iconColor={theme.colors.primary} />}
+            right={(props) => <IconButton {...props} icon="chevron-right" />}
+          />
+        </Card>
+
+        <Card style={styles.actionCard} onPress={() => router.push('/pyq')}>
+          <Card.Title
+            title="Previous Year Papers"
+            subtitle="Practice from official past exams"
+            left={(props) => <IconButton {...props} icon="history" iconColor={theme.colors.tertiary} />}
             right={(props) => <IconButton {...props} icon="chevron-right" />}
           />
         </Card>
