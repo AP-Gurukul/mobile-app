@@ -1,24 +1,41 @@
-import { Stack } from 'expo-router';
+import { Stack, router, useSegments } from 'expo-router';
 import { PaperProvider } from 'react-native-paper';
 import { useColorScheme } from 'react-native';
 import { lightTheme, darkTheme } from '../src/theme/theme';
 import { useEffect, useState } from 'react';
 import { auth } from '../src/services/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { View, ActivityIndicator } from 'react-native';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
   const [isReady, setIsReady] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const segments = useSegments();
 
   useEffect(() => {
-    // Wait for initial Firebase auth state to load
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
       setIsReady(true);
     });
     return unsubscribe;
   }, []);
+
+  // Redirect based on auth state
+  useEffect(() => {
+    if (!isReady) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user && !inAuthGroup) {
+      // Not logged in, redirect to login
+      router.replace('/(auth)/login');
+    } else if (user && inAuthGroup) {
+      // Logged in but on auth screen, redirect to tabs
+      router.replace('/(tabs)');
+    }
+  }, [user, isReady, segments]);
 
   if (!isReady) {
     return (
@@ -33,6 +50,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="practice" options={{ headerShown: false }} />
       </Stack>
     </PaperProvider>
   );
