@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { Text, useTheme, Button, Divider, Switch } from 'react-native-paper';
+import { Text, useTheme, Button, Divider, Switch, SegmentedButtons } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { auth } from '../../services/firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { router } from 'expo-router';
 import { useReviewStore, getStats } from '../../store/useReview';
+import { useThemeStore } from '../../store/useThemeStore';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +18,9 @@ export default function ProfileScreen() {
   const attempts = useReviewStore((s: any) => s.attempts);
   const stats = useMemo(() => getStats(attempts), [attempts]);
   const [activeTab, setActiveTab] = useState<'analytics' | 'settings'>('analytics');
+  
+  const themeMode = useThemeStore(state => state.themeMode);
+  const setThemeMode = useThemeStore(state => state.setThemeMode);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -142,11 +146,20 @@ export default function ProfileScreen() {
         </View>
         <Divider style={{ backgroundColor: theme.colors.surfaceVariant }} />
         <View style={styles.settingsBody}>
-          <SettingRow
-            label="Dark Mode"
-            value="System"
-            theme={theme}
-          />
+          <View style={settingStyles.row}>
+            <Text style={[settingStyles.label, { color: theme.colors.onSurface }]}>Theme</Text>
+            <SegmentedButtons
+              value={themeMode}
+              onValueChange={setThemeMode as any}
+              buttons={[
+                { value: 'system', label: 'System' },
+                { value: 'light', label: 'Light' },
+                { value: 'dark', label: 'Dark' },
+              ]}
+              style={{ width: 220 }}
+              density="small"
+            />
+          </View>
           <Divider style={{ backgroundColor: theme.colors.surfaceVariant, marginVertical: 8 }} />
           <SettingRow
             label="Language"

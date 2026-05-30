@@ -3,9 +3,12 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } fro
 import { Text, useTheme, Button, IconButton, ProgressBar, Surface } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { fetchPracticeQuestions, Question } from '../../services/firestore';
+import { fetchPracticeQuestions, Question, saveAttempt } from '../../services/firestore';
+import { auth } from '../../services/firebaseConfig';
+import { useReviewStore } from '../../store/useReview';
 
 export default function ActivePracticeSession() {
+  const addAttempts = useReviewStore(state => state.addAttempts);
   const theme = useTheme();
   const { subject, topic, count, mode } = useLocalSearchParams();
   
@@ -32,15 +35,49 @@ export default function ActivePracticeSession() {
     setSelectedAnswers(prev => ({ ...prev, [currentIndex]: optionId }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
       // Finish Session
+      const score = calculateScore();
+      const total = questions.length;
+      
+      const sessionAttempts = questions.map((q, idx) => ({
+        questionId: q.id,
+        questionText: q.text,
+        subject: q.subject,
+        topic: q.topic,
+        selectedOptionId: selectedAnswers[idx] || '',
+        correctOptionId: q.correctOptionId,
+        isCorrect: selectedAnswers[idx] === q.correctOptionId,
+        isBookmarked: false,
+        isFlagged: false,
+        timeSpentMs: 0,
+        attemptedAt: Date.now(),
+        explanation: q.explanation,
+        options: q.options,
+      }));
+
+      // Save locally for stats and review
+      addAttempts(sessionAttempts);
+
+      // Save to Firebase User Attempts
+      if (auth.currentUser?.uid) {
+        await saveAttempt(auth.currentUser.uid, {
+          subject: subject as string,
+          topic: topic as string,
+          score,
+          total,
+          mode: mode as string,
+          timestamp: new Date().toISOString()
+        });
+      }
+
       router.replace({
         pathname: '/practice/result',
         // In a real app, you would pass the session ID to fetch results from store
-        params: { score: calculateScore(), total: questions.length }
+        params: { score: score.toString(), total: total.toString() }
       });
     }
   };

@@ -21,27 +21,11 @@ interface QuickAction {
 const QUICK_ACTIONS: QuickAction[] = [
   {
     id: 'practice',
-    title: 'Practice',
-    subtitle: 'Topic-wise MCQs',
+    title: 'Topic MCQs',
+    subtitle: 'Normal Practice',
     icon: 'book-open-variant',
     gradient: ['#4F46E5', '#6366F1'],
     route: '/(tabs)/practice',
-  },
-  {
-    id: 'tests',
-    title: 'Mock Tests',
-    subtitle: 'Full-length exams',
-    icon: 'timer-outline',
-    gradient: ['#7C3AED', '#8B5CF6'],
-    route: '/(tabs)/tests',
-  },
-  {
-    id: 'current-affairs',
-    title: 'Current Affairs',
-    subtitle: 'Daily updates',
-    icon: 'newspaper-variant-outline',
-    gradient: ['#0D9488', '#14B8A6'],
-    route: '/current-affairs',
   },
   {
     id: 'pyq',
@@ -50,6 +34,22 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: 'history',
     gradient: ['#D97706', '#F59E0B'],
     route: '/pyq',
+  },
+  {
+    id: 'current-affairs',
+    title: 'Daily Newspaper',
+    subtitle: 'Current affairs',
+    icon: 'newspaper-variant-outline',
+    gradient: ['#0D9488', '#14B8A6'],
+    route: '/current-affairs',
+  },
+  {
+    id: 'tests',
+    title: 'Mock Tests',
+    subtitle: 'Full-length exams',
+    icon: 'timer-outline',
+    gradient: ['#7C3AED', '#8B5CF6'],
+    route: '/(tabs)/tests',
   },
 ];
 
@@ -80,29 +80,27 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Continue Session */}
+          {/* Mix Practice (All-in-One) */}
           <TouchableOpacity
             style={styles.continueCard}
-            onPress={() => router.push('/practice')}
+            onPress={() => router.push({
+              pathname: '/practice/[sessionId]',
+              params: { sessionId: 'new', subject: 'all', topic: 'mix', count: '20', mode: 'practice' }
+            })}
             activeOpacity={0.8}
           >
             <View style={styles.continueTop}>
               <View style={styles.continueIconWrap}>
-                <MaterialCommunityIcons name="play-circle" size={20} color="#4F46E5" />
+                <MaterialCommunityIcons name="layers-triple" size={20} color="#4F46E5" />
               </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.continueTitle}>Continue Practice</Text>
-                <Text style={styles.continueSubtitle}>Indian Polity – Fundamental Rights</Text>
+                <Text style={styles.continueTitle}>Mix Practice</Text>
+                <Text style={styles.continueSubtitle}>Normal, PYQs & Current Affairs</Text>
               </View>
               <MaterialCommunityIcons name="chevron-right" size={22} color="#94A3B8" />
             </View>
             <View style={styles.continueBottom}>
-              <ProgressBar
-                progress={0.6}
-                color="#4F46E5"
-                style={styles.progressBar}
-              />
-              <Text style={styles.progressText}>12/20</Text>
+              <Text style={[styles.progressText, { color: '#64748B', fontWeight: '500' }]}>Practice all questions together</Text>
             </View>
           </TouchableOpacity>
         </LinearGradient>
