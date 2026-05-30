@@ -131,7 +131,7 @@ export default function ActivePracticeSession() {
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Question Area */}
-        <Surface style={styles.questionCard} elevation={1}>
+        <Surface style={[styles.questionCard, { borderColor: theme.colors.outline, borderWidth: 1 }]} elevation={0}>
           <Text variant="titleLarge" style={styles.questionText}>
             {currentQuestion.text}
           </Text>

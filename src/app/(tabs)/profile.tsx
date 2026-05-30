@@ -62,7 +62,7 @@ export default function ProfileScreen() {
           {Object.entries(stats.subjectWise).map(([subject, data]: [string, any]) => (
             <View
               key={subject}
-              style={[styles.subjectCard, { backgroundColor: theme.colors.surface }]}
+              style={[styles.subjectCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}
             >
               <View style={styles.subjectRow}>
                 <View style={{ flex: 1 }}>
@@ -123,7 +123,7 @@ export default function ProfileScreen() {
 
   const renderSettings = () => (
     <>
-      <View style={[styles.settingsCard, { backgroundColor: theme.colors.surface }]}>
+      <View style={[styles.settingsCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
         <View style={styles.settingsHeader}>
           <MaterialCommunityIcons name="account-circle-outline" size={22} color={theme.colors.primary} />
           <Text style={[styles.settingsTitle, { color: theme.colors.onSurface }]}>Account</Text>
@@ -139,7 +139,7 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <View style={[styles.settingsCard, { backgroundColor: theme.colors.surface }]}>
+      <View style={[styles.settingsCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
         <View style={styles.settingsHeader}>
           <MaterialCommunityIcons name="cog-outline" size={22} color={theme.colors.primary} />
           <Text style={[styles.settingsTitle, { color: theme.colors.onSurface }]}>Preferences</Text>
@@ -215,7 +215,7 @@ export default function ProfileScreen() {
             onPress={() => setActiveTab('analytics')}
             style={[
               styles.tabButton,
-              activeTab === 'analytics' && [styles.tabActive, { backgroundColor: theme.colors.surface }],
+              activeTab === 'analytics' && [styles.tabActive, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }],
             ]}
             activeOpacity={0.7}
           >
@@ -235,7 +235,7 @@ export default function ProfileScreen() {
             onPress={() => setActiveTab('settings')}
             style={[
               styles.tabButton,
-              activeTab === 'settings' && [styles.tabActive, { backgroundColor: theme.colors.surface }],
+              activeTab === 'settings' && [styles.tabActive, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }],
             ]}
             activeOpacity={0.7}
           >
@@ -338,11 +338,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tabActive: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    borderWidth: 1,
   },
   tabLabel: {
     fontSize: 14,
@@ -389,11 +385,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
   },
   subjectRow: {
     flexDirection: 'row',
@@ -452,11 +443,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
     overflow: 'hidden',
   },
   settingsHeader: {

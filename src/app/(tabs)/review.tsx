@@ -132,7 +132,7 @@ export default function ReviewScreen() {
             {weakTopics.map((topic: any, index: number) => (
               <View
                 key={index}
-                style={[styles.weakCard, { backgroundColor: theme.colors.surface }]}
+                style={[styles.weakCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}
               >
                 <View style={styles.weakRow}>
                   <View style={[styles.weakDot, {
@@ -298,11 +298,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
   },
   weakRow: {
     flexDirection: 'row',

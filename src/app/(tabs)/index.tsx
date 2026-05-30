@@ -82,7 +82,7 @@ export default function HomeScreen() {
 
           {/* Mix Practice (All-in-One) */}
           <TouchableOpacity
-            style={styles.continueCard}
+            style={[styles.continueCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}
             onPress={() => router.push({
               pathname: '/practice/[sessionId]',
               params: { sessionId: 'new', subject: 'all', topic: 'mix', count: '20', mode: 'practice' }
@@ -155,7 +155,7 @@ export default function HomeScreen() {
         </Text>
 
         <TouchableOpacity
-          style={[styles.recommendCard, { backgroundColor: theme.colors.surface }]}
+          style={[styles.recommendCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}
           onPress={() => router.push('/(tabs)/review')}
           activeOpacity={0.7}
         >
@@ -174,7 +174,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.recommendCard, { backgroundColor: theme.colors.surface }]}
+          style={[styles.recommendCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}
           onPress={() => router.push('/(tabs)/tests')}
           activeOpacity={0.7}
         >
@@ -193,7 +193,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.recommendCard, { backgroundColor: theme.colors.surface, marginBottom: 24 }]}
+          style={[styles.recommendCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1, marginBottom: 24 }]}
           onPress={() => router.push('/current-affairs')}
           activeOpacity={0.7}
         >
@@ -268,7 +268,6 @@ const styles = StyleSheet.create({
   },
   // Continue card
   continueCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     marginTop: 4,
@@ -389,11 +388,6 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
   },
   recommendIcon: {
     width: 48,

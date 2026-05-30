@@ -96,7 +96,7 @@ export default function PracticeScreen() {
 
         {/* Topic Selection */}
         <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>Topic</Text>
-        <View style={[styles.topicCard, { backgroundColor: theme.colors.surface }]}>
+        <View style={[styles.topicCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
           {TOPICS[selectedSubject]?.map((topic, index) => {
             const isSelected = selectedTopic === topic;
             return (
@@ -136,7 +136,7 @@ export default function PracticeScreen() {
 
         {/* Configuration */}
         <Text style={[styles.sectionLabel, { color: theme.colors.onSurface }]}>Configuration</Text>
-        <View style={[styles.configCard, { backgroundColor: theme.colors.surface }]}>
+        <View style={[styles.configCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
           <View style={styles.configRow}>
             <Text style={[styles.configLabel, { color: theme.colors.onSurface }]}>Questions</Text>
             <SegmentedButtons
@@ -226,11 +226,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
   },
   topicRow: {
     flexDirection: 'row',
@@ -253,11 +248,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
   },
   configRow: {
     flexDirection: 'row',
