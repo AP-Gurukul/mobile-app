@@ -44,7 +44,7 @@ export default function TestsScreen() {
     return (
       <View
         key={test.id}
-        style={[styles.testCard, { backgroundColor: theme.colors.surface }]}
+        style={[styles.testCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}
       >
         <View style={styles.testTop}>
           <View style={{ flex: 1 }}>
@@ -214,11 +214,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
   },
   testTop: {
     flexDirection: 'row',

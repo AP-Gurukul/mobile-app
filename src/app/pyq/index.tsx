@@ -40,8 +40,8 @@ export default function PYQScreen() {
           placeholder="Search papers..."
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={styles.searchbar}
-          elevation={1}
+          style={[styles.searchbar, { borderColor: theme.colors.outline, borderWidth: 1 }]}
+          elevation={0}
         />
 
         {/* Year Filter */}
@@ -87,7 +87,7 @@ export default function PYQScreen() {
           </Surface>
         ) : (
           filteredPapers.map((paper) => (
-            <Card key={paper.id} style={styles.paperCard}>
+            <Card key={paper.id} style={styles.paperCard} mode="outlined" theme={{ colors: { outline: theme.colors.outline } }}>
               <Card.Title
                 title={paper.title}
                 subtitle={`${paper.type} • ${paper.year}`}
