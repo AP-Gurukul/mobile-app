@@ -6,10 +6,14 @@ import { useEffect, useState } from 'react';
 import { auth } from '../services/firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { View, ActivityIndicator } from 'react-native';
+import { useThemeStore } from '../store/useThemeStore';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
+  const themeMode = useThemeStore(state => state.themeMode);
+  
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && colorScheme === 'dark');
+  const theme = isDark ? darkTheme : lightTheme;
   const [isReady, setIsReady] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const segments = useSegments();
