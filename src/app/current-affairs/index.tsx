@@ -1,66 +1,78 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Card, useTheme, Button, IconButton, Surface } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { Text, useTheme, Button, IconButton, Surface } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-
-const DAILY_QUIZZES = [
-  { id: '1', date: 'Oct 24, 2023', title: 'Daily Current Affairs Quiz', questions: 10, status: 'pending' },
-  { id: '2', date: 'Oct 23, 2023', title: 'Daily Current Affairs Quiz', questions: 10, status: 'completed', score: 8 },
-  { id: '3', date: 'Oct 22, 2023', title: 'Daily Current Affairs Quiz', questions: 10, status: 'completed', score: 9 },
-];
+import { fetchCurrentAffairs, Question } from '../../services/firestore';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function CurrentAffairsScreen() {
   const theme = useTheme();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadQuestions();
+  }, []);
+
+  const loadQuestions = async () => {
+    setLoading(true);
+    const fetched = await fetchCurrentAffairs(20);
+    setQuestions(fetched);
+    setLoading(false);
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <IconButton icon="arrow-left" onPress={() => router.back()} />
-        <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>Current Affairs</Text>
-        <IconButton icon="calendar-month-outline" onPress={() => {}} />
+        <Text variant="titleLarge" style={{ fontWeight: 'bold', color: theme.colors.onBackground }}>Current Affairs</Text>
+        <IconButton icon="calendar-month-outline" onPress={() => {}} iconColor={theme.colors.onBackground} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Highlight Card */}
-        <Surface style={[styles.highlightCard, { backgroundColor: theme.colors.primaryContainer }]} elevation={0}>
+        <Surface style={[styles.highlightCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]} elevation={0}>
           <View style={styles.highlightTextContainer}>
-            <Text variant="titleLarge" style={{ color: theme.colors.onPrimaryContainer, fontWeight: 'bold' }}>
+            <Text variant="titleLarge" style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>
               Today's Quiz
             </Text>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onPrimaryContainer, marginTop: 4, marginBottom: 16 }}>
-              Stay updated with the latest news. 10 questions waiting!
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4, marginBottom: 16 }}>
+              Stay updated with the latest news. {loading ? '...' : questions.length} questions waiting!
             </Text>
-            <Button mode="contained" onPress={() => {}} style={{ alignSelf: 'flex-start' }}>
+            <Button mode="contained" onPress={() => {}} style={{ alignSelf: 'flex-start', borderRadius: 8 }}>
               Start Now
             </Button>
           </View>
-          <IconButton icon="newspaper-variant-multiple" size={64} iconColor={theme.colors.primary} style={styles.highlightIcon} />
+          <MaterialCommunityIcons name="newspaper-variant-multiple" size={64} color={theme.colors.primary} style={styles.highlightIcon} />
         </Surface>
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>Previous Quizzes</Text>
+        <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>Available Questions</Text>
 
-        {DAILY_QUIZZES.map((quiz) => (
-          <Card key={quiz.id} style={styles.quizCard}>
-            <Card.Content style={styles.quizContent}>
-              <View style={{ flex: 1 }}>
-                <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>{quiz.date}</Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>{quiz.questions} Questions</Text>
-              </View>
-              {quiz.status === 'completed' ? (
-                <View style={styles.scoreContainer}>
-                  <Text variant="titleMedium" style={{ color: theme.colors.primary, fontWeight: 'bold' }}>
-                    {quiz.score}/10
-                  </Text>
+        {loading ? (
+           <View style={{ padding: 40, alignItems: 'center' }}>
+             <ActivityIndicator size="large" color={theme.colors.primary} />
+           </View>
+        ) : questions.length === 0 ? (
+          <Surface style={[styles.emptyCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]} elevation={0}>
+            <MaterialCommunityIcons name="newspaper" size={48} color={theme.colors.onSurfaceVariant} />
+            <Text variant="titleMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 12 }}>No current affairs found</Text>
+          </Surface>
+        ) : (
+          questions.map((q, idx) => (
+            <View key={q.id || idx.toString()} style={[styles.quizCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+              <View style={styles.quizContent}>
+                <View style={{ flex: 1 }}>
+                  <Text variant="titleMedium" style={{ fontWeight: 'bold', color: theme.colors.onSurface }}>{q.topic}</Text>
+                  <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }} numberOfLines={1}>{q.text}</Text>
                 </View>
-              ) : (
-                <Button mode="contained-tonal" compact onPress={() => {}}>Start</Button>
-              )}
-            </Card.Content>
-          </Card>
-        ))}
+                <Button mode="outlined" compact onPress={() => {}} style={{ borderColor: theme.colors.outline }}>Read</Button>
+              </View>
+            </View>
+          ))
+        )}
 
       </ScrollView>
     </SafeAreaView>
@@ -81,12 +93,7 @@ const styles = StyleSheet.create({
   highlightTextContainer: { flex: 1, zIndex: 2 },
   highlightIcon: { position: 'absolute', right: -10, bottom: -10, opacity: 0.2, zIndex: 1 },
   sectionTitle: { fontWeight: 'bold', marginBottom: 16 },
-  quizCard: { marginBottom: 12, borderRadius: 12 },
+  emptyCard: { padding: 32, borderRadius: 16, alignItems: 'center', marginTop: 16 },
+  quizCard: { marginBottom: 12, borderRadius: 12, padding: 16 },
   quizContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  scoreContainer: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
 });

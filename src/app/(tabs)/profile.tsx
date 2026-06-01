@@ -193,18 +193,18 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
         <LinearGradient
-          colors={['#4F46E5', '#7C3AED'] as any}
+          colors={theme.dark ? ['#1A1A1A', '#262626'] : ['#4F46E5', '#7C3AED']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.profileHero}
+          style={[styles.profileHero, theme.dark && { borderBottomWidth: 1, borderBottomColor: theme.colors.outline }]}
         >
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
-          <Text style={styles.userName}>
+          <Text style={[styles.userName, theme.dark && { color: theme.colors.onSurface }]}>
             {user?.displayName || 'Student'}
           </Text>
-          <Text style={styles.userEmail}>
+          <Text style={[styles.userEmail, theme.dark && { color: theme.colors.onSurfaceVariant }]}>
             {user?.email || ''}
           </Text>
         </LinearGradient>
