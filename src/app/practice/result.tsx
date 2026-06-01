@@ -19,30 +19,30 @@ export default function SessionResultScreen() {
           Session Complete!
         </Text>
 
-        <Card style={styles.scoreCard}>
-          <Card.Content style={styles.scoreContent}>
+        <View style={[styles.scoreCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+          <View style={styles.scoreContent}>
             <Text variant="displayLarge" style={{ fontWeight: 'bold', color: theme.colors.primary }}>
               {parsedScore} <Text variant="headlineMedium">/ {parsedTotal}</Text>
             </Text>
             <Text variant="titleMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
               Final Score
             </Text>
-          </Card.Content>
-        </Card>
+          </View>
+        </View>
 
         <View style={styles.statsRow}>
-          <Card style={[styles.statBox, { backgroundColor: theme.colors.secondaryContainer }]}>
-            <Card.Content style={styles.statContent}>
-              <Text variant="headlineSmall" style={{ color: theme.colors.onSecondaryContainer, fontWeight: 'bold' }}>{accuracy}%</Text>
-              <Text variant="labelMedium" style={{ color: theme.colors.onSecondaryContainer }}>Accuracy</Text>
-            </Card.Content>
-          </Card>
-          <Card style={[styles.statBox, { backgroundColor: theme.colors.errorContainer }]}>
-            <Card.Content style={styles.statContent}>
-              <Text variant="headlineSmall" style={{ color: theme.colors.onErrorContainer, fontWeight: 'bold' }}>{parsedTotal - parsedScore}</Text>
-              <Text variant="labelMedium" style={{ color: theme.colors.onErrorContainer }}>Incorrect</Text>
-            </Card.Content>
-          </Card>
+          <View style={[styles.statBox, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+            <View style={styles.statContent}>
+              <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>{accuracy}%</Text>
+              <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>Accuracy</Text>
+            </View>
+          </View>
+          <View style={[styles.statBox, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+            <View style={styles.statContent}>
+              <Text variant="headlineSmall" style={{ color: theme.colors.onSurface, fontWeight: 'bold' }}>{parsedTotal - parsedScore}</Text>
+              <Text variant="labelMedium" style={{ color: theme.colors.onSurfaceVariant }}>Incorrect</Text>
+            </View>
+          </View>
         </View>
 
         <Divider style={{ marginVertical: 24 }} />

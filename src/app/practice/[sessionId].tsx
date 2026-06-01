@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Text, useTheme, Button, IconButton, ProgressBar, Surface } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { Text, useTheme, Button, IconButton, ProgressBar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { fetchPracticeQuestions, Question, saveAttempt } from '../../services/firestore';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { fetchPracticeQuestions, fetchMixQuestions, Question, saveAttempt } from '../../services/firestore';
 import { auth } from '../../services/firebaseConfig';
 import { useReviewStore } from '../../store/useReview';
+
+const { width } = Dimensions.get('window');
+const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 export default function ActivePracticeSession() {
   const addAttempts = useReviewStore(state => state.addAttempts);
   const theme = useTheme();
   const { subject, topic, count, mode } = useLocalSearchParams();
-  
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
@@ -22,11 +27,20 @@ export default function ActivePracticeSession() {
   }, []);
 
   const loadQuestions = async () => {
-    const fetched = await fetchPracticeQuestions(
-      subject as string, 
-      topic as string, 
-      parseInt(count as string) || 10
-    );
+    const limitCount = parseInt(count as string) || 10;
+
+    let fetched: Question[];
+    if (subject === 'all' && topic === 'mix') {
+      // Mix Practice mode — pull from all collections
+      fetched = await fetchMixQuestions(limitCount);
+    } else {
+      fetched = await fetchPracticeQuestions(
+        subject as string,
+        topic as string,
+        limitCount
+      );
+    }
+
     setQuestions(fetched);
     setLoading(false);
   };
@@ -42,7 +56,7 @@ export default function ActivePracticeSession() {
       // Finish Session
       const score = calculateScore();
       const total = questions.length;
-      
+
       const sessionAttempts = questions.map((q, idx) => ({
         questionId: q.id,
         questionText: q.text,
@@ -59,10 +73,8 @@ export default function ActivePracticeSession() {
         options: q.options,
       }));
 
-      // Save locally for stats and review
       addAttempts(sessionAttempts);
 
-      // Save to Firebase User Attempts
       if (auth.currentUser?.uid) {
         await saveAttempt(auth.currentUser.uid, {
           subject: subject as string,
@@ -70,14 +82,13 @@ export default function ActivePracticeSession() {
           score,
           total,
           mode: mode as string,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
       router.replace({
         pathname: '/practice/result',
-        // In a real app, you would pass the session ID to fetch results from store
-        params: { score: score.toString(), total: total.toString() }
+        params: { score: score.toString(), total: total.toString() },
       });
     }
   };
@@ -96,93 +107,176 @@ export default function ActivePracticeSession() {
 
   if (loading) {
     return (
-      <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
+      <SafeAreaView style={[styles.center, { backgroundColor: theme.colors.background }]}>
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>
+            Loading questions…
+          </Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <View style={[styles.center, { backgroundColor: theme.colors.background }]}>
-        <Text>No questions found for this topic.</Text>
-        <Button mode="contained" onPress={() => router.back()} style={{ marginTop: 16 }}>Go Back</Button>
-      </View>
+      <SafeAreaView style={[styles.center, { backgroundColor: theme.colors.background }]}>
+        <MaterialCommunityIcons name="book-off-outline" size={64} color={theme.colors.onSurfaceVariant} />
+        <Text style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>No questions found</Text>
+        <Text style={[styles.emptySubtitle, { color: theme.colors.onSurfaceVariant }]}>
+          Try selecting a different topic or subject.
+        </Text>
+        <Button mode="contained" onPress={() => router.back()} style={{ marginTop: 20, borderRadius: 12 }}>
+          Go Back
+        </Button>
+      </SafeAreaView>
     );
   }
 
   const currentQuestion = questions[currentIndex];
   const progress = (currentIndex + 1) / questions.length;
+  const isLastQuestion = currentIndex === questions.length - 1;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <IconButton icon="close" onPress={() => router.back()} />
+      <View style={[styles.header, { borderBottomColor: theme.colors.outline }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn} activeOpacity={0.7}>
+          <MaterialCommunityIcons name="close" size={22} color={theme.colors.onSurface} />
+        </TouchableOpacity>
+
         <View style={styles.progressContainer}>
-          <Text variant="labelLarge">{currentIndex + 1} of {questions.length}</Text>
-          <ProgressBar progress={progress} color={theme.colors.primary} style={styles.progressBar} />
+          <View style={styles.progressLabelRow}>
+            <Text style={[styles.progressLabel, { color: theme.colors.onSurfaceVariant }]}>
+              Question {currentIndex + 1} of {questions.length}
+            </Text>
+            {mode === 'timed' && (
+              <View style={styles.timerBadge}>
+                <MaterialCommunityIcons name="clock-outline" size={14} color="#DC2626" />
+                <Text style={styles.timerText}>14:59</Text>
+              </View>
+            )}
+          </View>
+          <ProgressBar
+            progress={progress}
+            color={theme.colors.primary}
+            style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}
+          />
         </View>
-        <View style={styles.actions}>
-          <IconButton icon="bookmark-outline" />
-          {mode === 'timed' && <Text variant="labelLarge" style={{ color: theme.colors.error }}>14:59</Text>}
-        </View>
+
+        <TouchableOpacity style={styles.bookmarkBtn} activeOpacity={0.7}>
+          <MaterialCommunityIcons name="bookmark-outline" size={22} color={theme.colors.onSurfaceVariant} />
+        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Question Area */}
-        <Surface style={[styles.questionCard, { borderColor: theme.colors.outline, borderWidth: 1 }]} elevation={0}>
-          <Text variant="titleLarge" style={styles.questionText}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Subject/Topic badge */}
+        <View style={styles.badgeRow}>
+          <View style={[styles.badge, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <Text style={[styles.badgeText, { color: theme.colors.onSurfaceVariant }]}>
+              {currentQuestion.subject}
+            </Text>
+          </View>
+          {currentQuestion.topic && (
+            <View style={[styles.badge, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Text style={[styles.badgeText, { color: theme.colors.onSurfaceVariant }]}>
+                {currentQuestion.topic}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Question Card */}
+        <View style={[styles.questionCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
+          <Text style={[styles.questionText, { color: theme.colors.onSurface }]}>
             {currentQuestion.text}
           </Text>
-        </Surface>
+        </View>
 
         {/* Options */}
         <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((opt: any) => {
+          {currentQuestion.options.map((opt: any, idx: number) => {
             const isSelected = selectedAnswers[currentIndex] === opt.id;
             return (
               <TouchableOpacity
                 key={opt.id}
                 onPress={() => handleSelectOption(opt.id)}
+                activeOpacity={0.7}
                 style={[
                   styles.optionButton,
-                  { borderColor: theme.colors.outline },
-                  isSelected && { 
-                    backgroundColor: theme.colors.primaryContainer,
-                    borderColor: theme.colors.primary 
-                  }
+                  {
+                    backgroundColor: isSelected ? (theme.dark ? '#1E2740' : '#EEF2FF') : theme.colors.surface,
+                    borderColor: isSelected ? theme.colors.primary : theme.colors.outline,
+                    borderWidth: isSelected ? 2 : 1,
+                  },
                 ]}
               >
+                <View style={[
+                  styles.optionLabel,
+                  {
+                    backgroundColor: isSelected ? theme.colors.primary : theme.colors.surfaceVariant,
+                  },
+                ]}>
+                  <Text style={[
+                    styles.optionLabelText,
+                    { color: isSelected ? '#FFFFFF' : theme.colors.onSurfaceVariant },
+                  ]}>
+                    {OPTION_LABELS[idx]}
+                  </Text>
+                </View>
                 <Text style={[
                   styles.optionText,
-                  isSelected && { color: theme.colors.onPrimaryContainer, fontWeight: 'bold' }
+                  {
+                    color: theme.colors.onSurface,
+                    fontWeight: isSelected ? '600' : '400',
+                  },
                 ]}>
                   {opt.text}
                 </Text>
+                {isSelected && (
+                  <MaterialCommunityIcons name="check-circle" size={22} color={theme.colors.primary} />
+                )}
               </TouchableOpacity>
             );
           })}
         </View>
       </ScrollView>
 
-      {/* Footer Navigation */}
-      <View style={[styles.footer, { borderTopColor: theme.colors.surfaceVariant }]}>
-        <Button 
-          mode="text" 
-          onPress={handlePrevious} 
+      {/* Footer */}
+      <View style={[styles.footer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outline }]}>
+        <TouchableOpacity
+          onPress={handlePrevious}
           disabled={currentIndex === 0}
+          activeOpacity={0.7}
+          style={[
+            styles.navButton,
+            {
+              borderColor: currentIndex === 0 ? theme.colors.surfaceVariant : theme.colors.outline,
+              opacity: currentIndex === 0 ? 0.4 : 1,
+            },
+          ]}
         >
-          Previous
-        </Button>
-        
-        <Button 
-          mode="contained" 
-          onPress={handleNext}
-          disabled={!selectedAnswers[currentIndex] && currentIndex < questions.length - 1} // Can't go next without selecting if not last? Actually, skipping is allowed.
-        >
-          {currentIndex === questions.length - 1 ? 'Submit' : 'Next'}
-        </Button>
+          <MaterialCommunityIcons name="chevron-left" size={20} color={theme.colors.onSurface} />
+          <Text style={[styles.navButtonText, { color: theme.colors.onSurface }]}>Previous</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleNext} activeOpacity={0.85}>
+          <LinearGradient
+            colors={isLastQuestion ? ['#059669', '#10B981'] : ['#111111', '#333333'] as any}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.nextButton}
+          >
+            <Text style={styles.nextButtonText}>
+              {isLastQuestion ? 'Submit' : 'Next'}
+            </Text>
+            <MaterialCommunityIcons
+              name={isLastQuestion ? 'check' : 'chevron-right'}
+              size={20}
+              color="#fff"
+            />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -190,35 +284,127 @@ export default function ActivePracticeSession() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  loadingWrap: { alignItems: 'center', gap: 16 },
+  loadingText: { fontSize: 15, fontWeight: '500' },
+  emptyTitle: { fontSize: 20, fontWeight: '700', marginTop: 16 },
+  emptySubtitle: { fontSize: 14, marginTop: 6, textAlign: 'center' },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    gap: 8,
   },
-  progressContainer: { flex: 1, paddingHorizontal: 16 },
-  progressBar: { height: 6, borderRadius: 3, marginTop: 4 },
-  actions: { flexDirection: 'row', alignItems: 'center' },
-  content: { padding: 16 },
-  questionCard: {
-    padding: 20,
+  closeBtn: {
+    width: 40,
+    height: 40,
     borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  progressContainer: { flex: 1 },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  progressLabel: { fontSize: 13, fontWeight: '600' },
+  timerBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  timerText: { color: '#DC2626', fontSize: 13, fontWeight: '700' },
+  progressBar: { height: 8, borderRadius: 4 },
+  bookmarkBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Content
+  content: { padding: 16, paddingBottom: 24 },
+
+  // Badges
+  badgeRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  badgeText: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+
+  // Question card
+  questionCard: {
+    padding: 24,
+    borderRadius: 16,
+    borderWidth: 1,
     marginBottom: 24,
   },
-  questionText: { lineHeight: 28 },
+  questionText: {
+    fontSize: 18,
+    fontWeight: '500',
+    lineHeight: 28,
+    letterSpacing: -0.2,
+  },
+
+  // Options
   optionsContainer: { gap: 12 },
   optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 14,
+    gap: 14,
   },
-  optionText: { fontSize: 16 },
+  optionLabel: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  optionLabelText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  optionText: {
+    flex: 1,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+
+  // Footer
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderTopWidth: 1,
+    gap: 12,
   },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 4,
+  },
+  navButtonText: { fontSize: 14, fontWeight: '600' },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 6,
+    minHeight: 44,
+  },
+  nextButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

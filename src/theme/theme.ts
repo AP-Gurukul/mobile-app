@@ -64,35 +64,35 @@ export const darkTheme = {
   fonts: fontConfig,
   colors: {
     ...DarkTheme.colors,
-    primary: '#818CF8',          // Indigo 400
-    onPrimary: '#1E1B4B',
-    primaryContainer: '#312E81', // Indigo 900
-    onPrimaryContainer: '#C7D2FE', // Indigo 200
-    secondary: '#2DD4BF',        // Teal 400
-    onSecondary: '#042F2E',
-    secondaryContainer: '#134E4A', // Teal 900
-    onSecondaryContainer: '#99F6E4', // Teal 200
-    tertiary: '#A78BFA',          // Violet 400
-    onTertiary: '#2E1065',
-    tertiaryContainer: '#4C1D95', // Violet 900
-    onTertiaryContainer: '#DDD6FE', // Violet 200
-    background: '#0B1120',        // Deep navy
-    onBackground: '#E2E8F0',      // Slate 200
-    surface: '#131C2E',           // Navy surface
-    onSurface: '#E2E8F0',         // Slate 200
-    surfaceVariant: '#1B2740',    // Navy variant
-    onSurfaceVariant: '#94A3B8',  // Slate 400
-    error: '#F87171',             // Red 400
-    errorContainer: '#450A0A',    // Red 950
-    onErrorContainer: '#FECACA',  // Red 200
-    outline: '#334155',           // Slate 700
+    primary: '#FFFFFF',          // White buttons in dark mode
+    onPrimary: '#111111',
+    primaryContainer: '#9333EA', // Purple accent
+    onPrimaryContainer: '#FFFFFF',
+    secondary: '#ff5600',        // Fin Orange
+    onSecondary: '#FFFFFF',
+    secondaryContainer: '#ff5600',
+    onSecondaryContainer: '#FFFFFF',
+    tertiary: '#A78BFA',          
+    onTertiary: '#111111',
+    tertiaryContainer: '#4C1D95', 
+    onTertiaryContainer: '#DDD6FE', 
+    background: '#111111',        // Charcoal background
+    onBackground: '#FFFFFF',      // White text
+    surface: '#1A1A1A',           // Slightly lighter surface
+    onSurface: '#F3F4F6',         // Off-white text
+    surfaceVariant: '#262626',    // Higher surface variant
+    onSurfaceVariant: '#A3A3A3',  // Gray text
+    error: '#EF4444',             // Red
+    errorContainer: '#450A0A',    // Dark red bg
+    onErrorContainer: '#FCA5A5',  
+    outline: '#333333',           // Subtle border
     elevation: {
       level0: 'transparent',
-      level1: '#131C2E',
-      level2: '#1B2740',
-      level3: '#1E3050',
-      level4: '#233B60',
-      level5: '#2A4570',
+      level1: '#1A1A1A',
+      level2: '#262626',
+      level3: '#333333',
+      level4: '#404040',
+      level5: '#4D4D4D',
     },
   },
 };

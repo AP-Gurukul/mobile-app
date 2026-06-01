@@ -1,9 +1,7 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
-import { initializeAuth, getAuth, Auth } from 'firebase/auth';
-// @ts-ignore
-import { getReactNativePersistence } from 'firebase/auth';
+import { initializeAuth, getAuth, Auth, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // In a real app, these should be in an environment variable (.env)
 const firebaseConfig = {
@@ -18,14 +16,23 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Auth with persistence
-// Use try-catch to handle hot reload / module re-evaluation where
-// initializeAuth throws "auth/already-initialized"
+// Initialize Auth with platform-aware persistence
+// Web: uses browserLocalPersistence (localStorage)
+// Native: uses getReactNativePersistence(AsyncStorage)
 let auth: Auth;
 try {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-  });
+  if (Platform.OS === 'web') {
+    auth = initializeAuth(app, {
+      persistence: browserLocalPersistence,
+    });
+  } else {
+    // Dynamic import to avoid bundling issues on web
+    const { getReactNativePersistence } = require('firebase/auth');
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  }
 } catch (e: unknown) {
   const firebaseError = e as { code?: string };
   if (firebaseError.code === 'auth/already-initialized') {

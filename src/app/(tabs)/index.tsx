@@ -53,8 +53,12 @@ const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
+import { getStats, useReviewStore } from '../../store/useReview';
+
 export default function HomeScreen() {
   const theme = useTheme();
+  const attempts = useReviewStore(state => state.attempts);
+  const stats = getStats(attempts);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -107,17 +111,17 @@ export default function HomeScreen() {
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
-          <View style={[styles.statPill, { backgroundColor: theme.colors.primaryContainer }]}>
-            <Text style={[styles.statNumber, { color: theme.colors.onPrimaryContainer }]}>14</Text>
-            <Text style={[styles.statLabel, { color: theme.colors.onPrimaryContainer }]}>🔥 Streak</Text>
+          <View style={[styles.statPill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+            <Text style={[styles.statNumber, { color: theme.colors.onSurface }]}>14</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>🔥 Streak</Text>
           </View>
-          <View style={[styles.statPill, { backgroundColor: theme.colors.secondaryContainer }]}>
-            <Text style={[styles.statNumber, { color: theme.colors.onSecondaryContainer }]}>85%</Text>
-            <Text style={[styles.statLabel, { color: theme.colors.onSecondaryContainer }]}>Accuracy</Text>
+          <View style={[styles.statPill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+            <Text style={[styles.statNumber, { color: theme.colors.onSurface }]}>{stats.accuracy}%</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Accuracy</Text>
           </View>
-          <View style={[styles.statPill, { backgroundColor: theme.colors.tertiaryContainer }]}>
-            <Text style={[styles.statNumber, { color: theme.colors.onTertiaryContainer }]}>248</Text>
-            <Text style={[styles.statLabel, { color: theme.colors.onTertiaryContainer }]}>Solved</Text>
+          <View style={[styles.statPill, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1 }]}>
+            <Text style={[styles.statNumber, { color: theme.colors.onSurface }]}>{stats.totalAttempted}</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>Solved</Text>
           </View>
         </View>
 
